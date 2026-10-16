@@ -41,7 +41,6 @@ function switchTab(tabName) {
 
 async function fetchAppData(email, googleUserPhoto) {
   try {
-    // Llamado real a tu Google Apps Script pasando el correo autenticado
     const response = await fetch(`${WEB_APP_URL}?email=${encodeURIComponent(email)}`);
     const data = await response.json();
 
@@ -60,10 +59,10 @@ function updateUI(client, articles, googleUserPhoto) {
   // Home
   document.getElementById('home-greeting').innerText = `¡HOLA, ${client["Nombres"] || "CLIENTE"}!`;
 
-  // Perfil corto
+  // Perfil corto (CORREGIDO EL ERROR DE SINTAXIS AQUÍ)
   document.getElementById('profile-name').innerText = `${client["Nombres"] || ""} ${client["Apellidos"] || ""}`;
-  document.getElementById('profile-tel'].innerText = client["Telefono"] || "-";
-  document.getElementById('profile-age'].innerText = client["Edad"] || "-";
+  document.getElementById('profile-tel').innerText = client["Telefono"] || "-";
+  document.getElementById('profile-age').innerText = client["Edad"] || "-";
   document.getElementById('profile-pic').src = googleUserPhoto || "https://via.placeholder.com/80";
 
   document.getElementById('val-horario').innerText = client["Horario de Preferencia"] || "-";

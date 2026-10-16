@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulking y Cutting - Mi Entrenadora App</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 max-w-md mx-auto shadow-2xl overflow-hidden h-screen relative flex flex-col">
+
+  <!-- CONTENEDOR PRINCIPAL DEL ARTÍCULO (Con scroll independiente) -->
+  <main class="flex-1 overflow-y-auto h-[calc(100vh-4rem)] p-6 pb-20 space-y-6">
+    
+    <!-- Botón de Regresar -->
+    <a href="index.html" class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Volver a la app
+    </a>
+
+    <!-- Cabecera del Artículo -->
+    <div class="space-y-2">
+      <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Nutrición y Entrenamiento</span>
+      <h1 class="text-2xl font-black text-gray-900">Bulking y Cutting: Guía Definitiva</h1>
+      <p class="text-xs text-gray-400">Lectura de 4 min • Tu Entrenadora</p>
+    </div>
+
+    <!-- Imagen Principal -->
+    <div class="rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+      <img src="https://via.placeholder.com/600x300" alt="Bulking y Cutting" class="w-full h-48 object-cover">
+    </div>
+
+    <!-- Contenido del Artículo -->
+    <div class="space-y-4 text-sm text-gray-600 leading-relaxed bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+      <h2 class="text-base font-bold text-gray-800">¿Qué es el Bulking (Volumen)?</h2>
+      <p>
+        El bulking o etapa de volumen consiste en consumir un ligero superávit calórico (comer más calorías de las que quemas) acompañado de un entrenamiento de fuerza intenso. Su objetivo principal es maximizar la ganancia de masa muscular.
+      </p>
+
+      <h2 class="text-base font-bold text-gray-800 pt-2">¿Qué es el Cutting (Definición)?</h2>
+      <p>
+        Por el contrario, el cutting o definición busca reducir el porcentaje de grasa corporal manteniendo la mayor cantidad de músculo posible. Para lograrlo, se establece un déficit calórico controlado y se ajustan los macronutrientes.
+      </p>
+
+      <h2 class="text-base font-bold text-gray-800 pt-2">Claves para el éxito</h2>
+      <ul class="list-disc pl-5 space-y-1 text-gray-700">
+        <li><strong>Proteína adecuada:</strong> Es fundamental en ambas fases para proteger o construir tejido muscular.</li>
+        <li><strong>Consistencia:</strong> Los cambios físicos reales toman semanas de disciplina.</li>
+        <li><strong>Descanso:</strong> El músculo crece cuando duermes y te recuperas, no mientras entrenas.</li>
+      </ul>
+    </div>
+
+  </main>
+
+  <!-- MENÚ INFERIOR FIJO (Mantiene la consistencia de la PWA) -->
+  <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 flex justify-around items-center h-16 shadow-lg z-40">
+    <a href="index.html" class="flex flex-col items-center text-gray-400 hover:text-indigo-600 focus:outline-none">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span class="text-xs mt-1">Home</span>
+    </a>
+    
+    <a href="index.html" class="flex flex-col items-center text-indigo-600 focus:outline-none">
+      <img src="./assets/mei_logo.png" alt="Apps" class="w-6 h-6 object-contain">
+      <span class="text-xs mt-1">Apps</span>
+    </a>
+    
+    <a href="index.html" class="flex flex-col items-center text-gray-400 hover:text-indigo-600 focus:outline-none">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <span class="text-xs mt-1">Perfil</span>
+    </a>
+  </nav>
+
+</body>
+</html>

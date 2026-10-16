@@ -1,4 +1,4 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwQqvRvzsT3KtWRpnRENcUmPU3HroXt1MtCSzvndk0daComypNO4toq1DIdK5h_pyLBdw/exec"; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwotyCfoefrOJHkXYmS0AYPfN_EpNXRXLS7nXwbnHl08ILbeHmy6xAHv42I5YiWuulkJQ/exec"; 
 
 // Función que se ejecuta automáticamente cuando el usuario se loguea con Google
 function handleCredentialResponse(response) {

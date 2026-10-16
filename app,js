@@ -1,0 +1,92 @@
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwotyCfoefrOJHkXYmS0AYPfN_EpNXRXLS7nXwbnHl08ILbeHmy6xAHv42I5YiWuulkJQ/exec"; // Reemplazar al desplegar
+
+// Simulación de correo autenticado (Aquí se integrará Google OAuth más adelante)
+let userEmail = "cliente@ejemplo.com"; 
+let googleUserPhoto = "https://via.placeholder.com/80"; 
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetchAppData(userEmail);
+});
+
+function switchTab(tabName) {
+  document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-indigo-600'));
+  btn.classList.add('text-gray-400');
+
+  if (tabName === 'home') {
+    document.getElementById('view-home').classList.remove('hidden');
+  } else if (tabName === 'central') {
+    document.getElementById('view-central').classList.remove('hidden');
+  } else if (tabName === 'profile') {
+    document.getElementById('view-profile').classList.remove('hidden');
+  }
+}
+
+async function fetchAppData(email) {
+  try {
+    // Preparando el llamado al backend seguro
+    // const response = await fetch(`${WEB_APP_URL}?email=${encodeURIComponent(email)}`);
+    // const data = await response.json();
+    
+    // Datos simulados de prueba mientras vinculas tu Web App definitiva:
+    const data = {
+      client: {
+        "Nombres": "Mariana",
+        "Apellidos": "Pérez",
+        "Edad": 28,
+        "Altura (en cm)": 165,
+        "Telefono": "0412-1234567",
+        "Horario de Preferencia": "Mañana (7:00 AM)",
+        "Dias": "LUN, MIE, VIE",
+        "Proxima Valoracion": "2026-05-01",
+        "Proximo Pago": "2026-05-15"
+      },
+      articles: [
+        { Articulo: "Bulking y Cutting explicados", Foto: "https://via.placeholder.com/150", link: "./bulking_cutting.html" },
+        { Articulo: "Rutina de fuerza base", Foto: "https://via.placeholder.com/150", link: "#" },
+        { Articulo: "Hidratación óptima", Foto: "https://via.placeholder.com/150", link: "#" }
+      ]
+    };
+
+    if (data.client) {
+      updateUI(data.client, data.articles);
+    }
+  } catch (error) {
+    console.error("Error al obtener datos:", error);
+  }
+}
+
+function updateUI(client, articles) {
+  // Home
+  document.getElementById('home-greeting').innerText = `¡HOLA, ${client["Nombres"] || "CLIENTE"}!`;
+
+  // Perfil corto
+  document.getElementById('profile-name').innerText = `${client["Nombres"]} ${client["Apellidos"]}`;
+  document.getElementById('profile-tel').innerText = client["Telefono"] || "-";
+  document.getElementById('profile-age').innerText = client["Edad"] || "-";
+  document.getElementById('profile-pic').src = googleUserPhoto;
+
+  document.getElementById('val-horario').innerText = client["Horario de Preferencia"] || "-";
+  document.getElementById('val-dias').innerText = client["Dias"] || "-";
+  document.getElementById('val-valoracion').innerText = client["Proxima Valoracion"] || "-";
+  document.getElementById('val-pago').innerText = client["Proximo Pago"] || "-";
+
+  // Artículos
+  const container = document.getElementById('articles-container');
+  container.innerHTML = "";
+  articles.forEach(art => {
+    container.innerHTML += `
+      <a href="${art.link}" class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:bg-gray-50 transition">
+        <img src="${art.Foto}" alt="Art" class="w-16 h-16 rounded-lg object-cover">
+        <span class="font-medium text-sm text-gray-800">${art.Articulo}</span>
+      </a>
+    `;
+  });
+}
+
+// Espacio reservado para los módulos independientes (rutinas.js, medidas.js, alimentacion.js, atleta.js)
+function loadModule(moduleName) {
+  console.log(`Cargando módulo independiente: ${moduleName}.js`);
+  // Aquí se invocarán las lógicas particulares de cada archivo js en el futuro
+  alert(`Abriendo módulo: ${moduleName}`);
+}

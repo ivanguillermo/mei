@@ -43,6 +43,7 @@ async function fetchAppData(email, googleUserPhoto) {
   try {
     const response = await fetch(`${WEB_APP_URL}?email=${encodeURIComponent(email)}`);
     const data = await response.json();
+    window.appMeasurementsData = data.measurements || [];
 
     if (data && data.client) {
       updateUI(data.client, data.articles, googleUserPhoto);
@@ -88,7 +89,7 @@ function updateUI(client, articles, googleUserPhoto) {
 }
 
 // Dentro de tu función updateUI o al procesar la respuesta del fetch:
-window.appMeasurementsData = data.measurements || [];
+
 
 // Cuando el usuario haga click en el botón de Medidas:
 function loadModule(moduleName) {

@@ -87,7 +87,18 @@ function updateUI(client, articles, googleUserPhoto) {
   }
 }
 
+// Dentro de tu función updateUI o al procesar la respuesta del fetch:
+window.appMeasurementsData = data.measurements || [];
+
+// Cuando el usuario haga click en el botón de Medidas:
 function loadModule(moduleName) {
-  console.log(`Cargando módulo independiente: ${moduleName}.js`);
-  alert(`Abriendo módulo: ${moduleName}`);
+  if (moduleName === 'medidas') {
+    if (window.initMedidasModule) {
+      window.initMedidasModule(window.appMeasurementsData);
+    }
+  } else {
+    console.log(`Cargando módulo: ${moduleName}`);
+  }
 }
+
+

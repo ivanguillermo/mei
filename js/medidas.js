@@ -1,165 +1,89 @@
-/**
- * Módulo Medidas - Estilo Bbm / KeepAPP
- */
-window.initMedidasModule = function(measurements) {
-  const container = document.getElementById('view-profile'); // O el contenedor donde desees renderizarlo
-  if (!container || !measurements || measurements.length === 0) {
-    console.warn("No hay datos de medidas disponibles.");
-    return;
-  }
+/* App: Medidas - ver por fecha de medición o por parte del cuerpo */
+(function () {
+  const CHEV = '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
 
-  // Ordenar mediciones por fecha (ascendente)
-  measurements.sort((a, b) => new Date(a["Fecha Medicion"] || a["Fecha"] || 0) - new Date(b["Fecha Medicion"] || b["Fecha"] || 0));
-
-  let modoFiltro = 'fecha'; // 'fecha' o 'parte'
-  
-  // Extraer lista de fechas únicas
-  const fechas = [...new Set(measurements.map(d => d["Fecha Medicion"] || d["Fecha"]))].filter(Boolean);
-  let fechaSeleccionada = fechas[fechas.length - 1] || ''; // Por defecto la más reciente
-
-  // Partes del cuerpo disponibles basadas en tus columnas exactas
-  const partesCuerpo = [
-    { key: 'Peso', label: 'Peso (Kg)' },
-    { key: 'Grasa Corporal', label: '% Grasa' },
-    { key: 'Masa Corporal', label: 'Masa Corporal' },
-    { key: 'Tricep', label: 'Tricep' },
-    { key: 'Subescapular', label: 'Subescapular' },
-    { key: 'Suprailiaco', label: 'Suprailiaco' },
-    { key: 'Abdominal', label: 'Abdominal' },
-    { key: 'Muslo', label: 'Muslo' },
-    { key: 'Pierna', label: 'Pierna' },
-    { key: 'Cuello', label: 'Cuello' },
-    { key: 'Cintura', label: 'Cintura' },
-    { key: 'Cadera', label: 'Cadera' },
-    { key: 'ICC', label: 'ICC' },
-    { key: 'Antebrazo Der', label: 'Anteb Der' },
-    { key: 'Antebrazo Izq', label: 'Anteb Izq' },
-    { key: 'Brazo Der', label: 'Brazo Der' },
-    { key: 'Brazo Izq', label: 'Brazo Izq' },
-    { key: 'Brazo Der Contr', label: 'Brazo Der Contr' },
-    { key: 'Brazo Izq Contr', label: 'Brazo Izq Contr' },
-    { key: 'Pecho', label: 'Pecho' },
-    { key: 'Muslo Sup Der', label: 'Muslo Sup Der' },
-    { key: 'Muslo Sup Izq', label: 'Muslo Sup Izq' },
-    { key: 'Muslo Med Der', label: 'Muslo Med Der' },
-    { key: 'Muslo Med Izq', label: 'Muslo Med Izq' },
-    { key: 'Pantorrila Der', label: 'Pantorrila Der' },
-    { key: 'Pantorrilla Izq', label: 'Pantorrilla Izq' }
+  // keys: nombres posibles de la columna en el sheet (el primero que exista)
+  const GROUPS = [
+    { title: "Peso y biometría", unit: "", parts: [
+      { label: "Peso corporal", keys: ["Peso"], unit: "kg" },
+      { label: "% Grasa corporal", keys: ["Grasa Corporal"], unit: "%" },
+      { label: "% Masa muscular", keys: ["Masa Corporal"], unit: "%" } ] },
+    { title: "Pliegues cutáneos", parts: [
+      { label: "Tríceps", keys: ["Tricep"], unit: "mm" },
+      { label: "Subescapular", keys: ["Subescapular"], unit: "mm" },
+      { label: "Suprailiaco", keys: ["Suprailiaco"], unit: "mm" },
+      { label: "Abdominal", keys: ["Abdominal"], unit: "mm" },
+      { label: "Muslo", keys: ["Muslo"], unit: "mm" },
+      { label: "Pierna", keys: ["Pierna"], unit: "mm" } ] },
+    { title: "Circunferencias", parts: [
+      { label: "Cuello", keys: ["Cuello"], unit: "cm" },
+      { label: "Cintura (ombligo)", keys: ["Cintura"], unit: "cm" },
+      { label: "Abdomen (ombligo)", keys: ["Abdomen"], unit: "cm" },
+      { label: "Cadera", keys: ["Cadera"], unit: "cm" },
+      { label: "Índice cintura-cadera", keys: ["ICC"], unit: "" },
+      { label: "Antebrazo derecho", keys: ["Antebrazo Der"], unit: "cm" },
+      { label: "Antebrazo izquierdo", keys: ["Antebrazo Izq"], unit: "cm" },
+      { label: "Brazo relajado der.", keys: ["Brazo Der"], unit: "cm" },
+      { label: "Brazo relajado izq.", keys: ["Brazo Izq"], unit: "cm" },
+      { label: "Brazo contraído der.", keys: ["Brazo Der Contr"], unit: "cm" },
+      { label: "Brazo contraído izq.", keys: ["Brazo Izq Contr"], unit: "cm" },
+      { label: "Pecho / tórax", keys: ["Pecho"], unit: "cm" },
+      { label: "Muslo superior der.", keys: ["Muslo Sup Der"], unit: "cm" },
+      { label: "Muslo superior izq.", keys: ["Muslo Sup Izq"], unit: "cm" },
+      { label: "Muslo medio der.", keys: ["Muslo Med Der"], unit: "cm" },
+      { label: "Muslo medio izq.", keys: ["Muslo Med Izq"], unit: "cm" },
+      { label: "Pantorrilla derecha", keys: ["Pantorrila Der", "Pantorrilla Der"], unit: "cm" },
+      { label: "Pantorrilla izquierda", keys: ["Pantorrilla Izq", "Pantorrila Izq"], unit: "cm" } ] }
   ];
+  const ALL = GROUPS.flatMap(g => g.parts);
 
-  let parteSeleccionada = partesCuerpo[0].key;
+  const dateOf = r => String(field(r, "Fecha de Medicion", "Fecha Medicion", "Fecha", "Marca temporal")).slice(0, 10);
+  const valOf = (r, p) => field(r, ...p.keys);
+  const unitStr = p => (p.unit ? " " + p.unit : "");
 
-  function renderMedidasUI() {
-    let selectorHTML = '';
+  registerApp({
+    id: "medidas", title: "Medidas", order: 3,
+    icon: '<svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="8" rx="1.500"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/></svg>',
+    render(box, ctx) {
+      const rows = (ctx.data.measurements || []).slice().sort((a, b) => dateOf(a).localeCompare(dateOf(b)));
+      if (!rows.length) { box.innerHTML = '<p class="empty">Todavía no tienes valoraciones registradas.</p>'; return; }
 
-    if (modoFiltro === 'fecha') {
-      const opts = fechas.map(f => `<option value="${f}" ${f === fechaSeleccionada ? 'selected' : ''}>${f}</option>`).join('');
-      selectorHTML = `<select id="select-medida-val" class="bg-emerald-50 text-emerald-800 text-xs font-bold py-1.5 px-3 rounded-xl border border-emerald-200 outline-none">${opts}</select>`;
-    } else {
-      const opts = partesCuerpo.map(p => `<option value="${p.key}" ${p.key === parteSeleccionada ? 'selected' : ''}>${p.label}</option>`).join('');
-      selectorHTML = `<select id="select-medida-val" class="bg-emerald-50 text-emerald-800 text-xs font-bold py-1.5 px-3 rounded-xl border border-emerald-200 outline-none">${opts}</select>`;
-    }
+      const dates = rows.map(dateOf);
+      let mode = "fecha", selDate = dates[dates.length - 1], selPart = ALL[0].label;
 
-    let html = `
-      <div class="space-y-4 p-4 bg-white rounded-2xl shadow-sm border border-emerald-100 my-4">
-        <!-- Cabecera de Filtros estilo captura -->
-        <div class="flex flex-col gap-2 bg-emerald-50/40 p-3 rounded-2xl border border-emerald-100">
-          <div class="flex items-center justify-between border-b border-emerald-100 pb-2">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">FILTRAR POR:</span>
-            <div class="flex gap-1 bg-gray-100 p-1 rounded-xl text-xs font-bold">
-              <button id="btn-modo-fecha" class="px-3 py-1 rounded-lg transition-all ${modoFiltro === 'fecha' ? 'bg-white text-emerald-700 shadow-xs' : 'text-gray-500'}">Fecha</button>
-              <button id="btn-modo-parte" class="px-3 py-1 rounded-lg transition-all ${modoFiltro === 'parte' ? 'bg-white text-emerald-700 shadow-xs' : 'text-gray-500'}">Parte del cuerpo</button>
-            </div>
-          </div>
-          <div class="flex items-center justify-between pt-1">
-            <span class="text-xs font-semibold text-gray-600">Selección:</span>
-            ${selectorHTML}
-          </div>
-        </div>
-    `;
+      function draw() {
+        let h = `<div class="seg"><button data-m="fecha" class="${mode === "fecha" ? "on" : ""}">Por fecha</button><button data-m="parte" class="${mode === "parte" ? "on" : ""}">Por medida</button></div>`;
 
-    if (modoFiltro === 'fecha') {
-      const registro = measurements.find(d => (d["Fecha Medicion"] || d["Fecha"]) === fechaSeleccionada);
-      if (registro) {
-        const pesoVal = registro["Peso"] || '-';
-        
-        html += `
-          <div class="bg-white rounded-2xl p-4 shadow-xs border border-emerald-100 space-y-3">
-            <div class="flex justify-between items-center border-b border-gray-100 pb-2">
-              <span class="text-xs font-bold text-gray-400">${fechaSeleccionada}</span>
-              <div class="text-emerald-700 font-black text-base">${pesoVal} <span class="text-xs font-medium">kg</span></div>
-            </div>
-            
-            <div class="grid grid-cols-4 gap-2 text-center text-xs">
-        `;
-
-        partesCuerpo.forEach(p => {
-          if (p.key === 'Peso') return; // Ya se muestra arriba
-          const val = registro[p.key];
-          if (val !== undefined && val !== '') {
-            html += `
-              <div class="bg-emerald-50/60 p-2 rounded-xl flex flex-col justify-center border border-emerald-100/50">
-                <span class="text-gray-400 text-[9px] uppercase font-bold tracking-tight">${p.label}</span>
-                <span class="font-bold text-gray-800 text-xs mt-0.5">${val}</span>
-              </div>
-            `;
-          }
-        });
-
-        html += `
-            </div>
-          </div>
-        `;
-      } else {
-        html += `<p class="text-center text-xs text-gray-400 py-4">No hay registros para esta fecha.</p>`;
+        if (mode === "fecha") {
+          h += `<select class="field" id="sel">${dates.slice().reverse().map(d => `<option value="${d}" ${d === selDate ? "selected" : ""}>${fmtDate(d)}</option>`).join("")}</select>`;
+          const r = rows[dates.indexOf(selDate)];
+          GROUPS.forEach((g, gi) => {
+            const items = g.parts.map(p => [p, valOf(r, p)]).filter(([, v]) => v !== "");
+            if (!items.length) return;
+            h += `<details class="group" ${gi === 0 ? "open" : ""}><summary>${g.title}${CHEV}</summary><div class="rows">` +
+              items.map(([p, v]) => `<div class="row"><span>${p.label}</span><span class="val">${esc(v)}${unitStr(p)}</span></div>`).join("") +
+              `</div></details>`;
+          });
+        } else {
+          h += `<select class="field" id="sel">${GROUPS.map(g => `<optgroup label="${g.title}">${g.parts.map(p => `<option value="${p.label}" ${p.label === selPart ? "selected" : ""}>${p.label}</option>`).join("")}</optgroup>`).join("")}</select>`;
+          const p = ALL.find(x => x.label === selPart);
+          const hist = rows.map(r => ({ d: dateOf(r), v: valOf(r, p) })).filter(x => x.v !== "");
+          if (!hist.length) h += '<p class="empty">No hay registros de esta medida.</p>';
+          else h += `<div class="card info-list">` + hist.map((x, i) => {
+            const prev = hist[i - 1] ? Number(hist[i - 1].v) : NaN, cur = Number(x.v);
+            let delta = "";
+            if (!isNaN(prev) && !isNaN(cur)) {
+              const diff = Math.round((cur - prev) * 100) / 100;
+              delta = `<span class="delta ${diff > 0 ? "up" : diff < 0 ? "down" : "eq"}">${diff > 0 ? "▲ +" : diff < 0 ? "▼ " : "= "}${diff === 0 ? "" : diff}</span>`;
+            }
+            return `<div class="row"><span>${fmtDate(x.d)}</span><span><span class="val">${esc(x.v)}${unitStr(p)}</span>${delta}</span></div>`;
+          }).reverse().join("") + `</div>`;
+        }
+        box.innerHTML = h;
+        box.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { mode = b.dataset.m; draw(); });
+        box.querySelector("#sel").onchange = e => { mode === "fecha" ? selDate = e.target.value : selPart = e.target.value; draw(); };
       }
-    } else {
-      // Modo Histórico por Parte del Cuerpo
-      const labelParte = partesCuerpo.find(p => p.key === parteSeleccionada)?.label || parteSeleccionada;
-      html += `
-        <div class="bg-white rounded-2xl p-4 shadow-xs border border-emerald-100">
-          <h3 class="font-bold text-gray-800 text-sm mb-3 border-b border-gray-100 pb-2">${labelParte} - Histórico</h3>
-          <div class="space-y-2">
-      `;
-
-      measurements.forEach(d => {
-        const val = d[parteSeleccionada] || '-';
-        const fecha = d["Fecha Medicion"] || d["Fecha"] || '-';
-        html += `
-          <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-            <span class="text-xs text-gray-500 font-medium">${fecha}</span>
-            <span class="font-black text-sm text-emerald-800">${val}</span>
-          </div>
-        `;
-      });
-
-      html += `</div></div>`;
+      draw();
     }
-
-    html += `</div>`;
-    
-    // Inyectar en un contenedor específico para medidas (puedes crear un div con id="modulo-medidas" donde prefieras mostrarlo)
-    let medidasContainer = document.getElementById('modulo-medidas');
-    if (!medidasContainer) {
-      medidasContainer = document.createElement('div');
-      medidasContainer.id = 'modulo-medidas';
-      container.appendChild(medidasContainer);
-    }
-    medidasContainer.innerHTML = html;
-
-    // Asignar Event Listeners
-    document.getElementById('btn-modo-fecha').addEventListener('click', () => { modoFiltro = 'fecha'; renderMedidasUI(); });
-    document.getElementById('btn-modo-parte').addEventListener('click', () => { modoFiltro = 'parte'; renderMedidasUI(); });
-
-    const selectEl = document.getElementById('select-medida-val');
-    if (selectEl) {
-      selectEl.addEventListener('change', (e) => {
-        if (modoFiltro === 'fecha') fechaSeleccionada = e.target.value;
-        else parteSeleccionada = e.target.value;
-        renderMedidasUI();
-      });
-    }
-  }
-
-  renderMedidasUI();
-};
+  });
+})();

@@ -5,7 +5,7 @@
    Home, Apps y Perfil.
    ===================================================================== */
 const CONFIG = {
-  WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwotyCfoefrOJHkXYmS0AYPfN_EpNXRXLS7nXwbnHl08ILbeHmy6xAHv42I5YiWuulkJQ/exec",
+  WEB_APP_URL: "https://script.google.com/macros/s/AKfycbyHdC1H_gJrxSTOF-6c1uyQCBqWg3ooljmRlgy0IOdsstzkzgVuUicaMDuGMino8Pe0Hw/exec",
   GOOGLE_CLIENT_ID: "710379501227-s89g8b7p7vhjlvir8ksf6890qapq2rt6.apps.googleusercontent.com"
 };
 

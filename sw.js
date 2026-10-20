@@ -11,7 +11,7 @@ const SHELL = [
   "./js/atletas.js",
   "./assets/mei_logo.png",
   "./icons/icon-192.png",
-  "./icons/icon-192.png",
+  "./icons/icon-512.png",
   "./bulking_cutting.html",
   "./deficit_calorico.html"
 ];

@@ -1,66 +1,46 @@
-const CACHE_NAME = 'mei-app-v1';
-const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './style.css',
-  './app.js',
-  './manifest.json',
-  './assets/mei_logo.png',
-  './bulking_cutting.html'
+const CACHE = "mei-app-v1";
+const SHELL = [
+  "./",
+  "./index.html", 
+  "./style.css", 
+  "./app.js",
+  "./manifest.json",
+  "./js/medidas.js",
+  "./js/rutinas.js", 
+  "./js/alimentacion.js",
+  "./js/atletas.js",
+  "./assets/mei_logo.png",
+  "./icons/icon-192.png",
+  "./icons/icon-192.png",
+  "./bulking_cutting.html",
+  "./deficit_calorico.html"
 ];
 
-// Instalación del Service Worker y almacenamiento en caché de los archivos estáticos
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Guardando recursos en caché...');
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
-  self.skipWaiting();
+self.addEventListener("install", e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });
 
-// Activación y limpieza de cachés antiguas
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('[SW] Borrando caché antigua:', cache);
-            return caches.delete(cache);
-          }
-        })
-      );
-    })
+self.addEventListener("activate", e => {
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Estrategia de respuesta: Network First para llamadas a Apps Script / Stale-While-Revalidate para recursos estáticos
-self.addEventListener('fetch', (event) => {
-  const requestUrl = new URL(event.request.url);
-
-  // Peticiones a Apps Script siempre van a la red directo
-  if (requestUrl.hostname.includes('script.google.com')) {
-    event.respondWith(fetch(event.request));
-    return;
-  }
-
-  // Para el resto de archivos estáticos: intenta caché, si no, busca en red
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Actualiza el caché en segundo plano
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {/* Ignorar errores de red en segundo plano */});
-        
-        return cachedResponse;
+self.addEventListener("fetch", e => {
+  const req = e.request;
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  // Datos y servicios de Google: siempre red, nunca cache
+  if (url.hostname.endsWith("google.com") || url.hostname.endsWith("googleusercontent.com") || url.hostname.endsWith("youtube.com")) return;
+  // Archivos de la app: red primero (para recibir cambios), cache si no hay conexión
+  e.respondWith(
+    fetch(req).then(res => {
+      if (res.ok && (url.origin === location.origin || url.hostname.includes("gstatic"))) {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(req, copy));
       }
-      return fetch(event.request);
-    })
+      return res;
+    }).catch(() => caches.match(req).then(r => r || caches.match("./index.html")))
   );
 });

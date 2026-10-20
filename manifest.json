@@ -1,21 +1,15 @@
 {
-  "short_name": "MeiApp",
-  "name": "Mi Entrenadora Personal",
-  "icons": [
-    {
-      "src": "./assets/mei_logo.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "./assets/mei_logo.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
+  "name": "Mei Rivero - 1% mejor cada día",
+  "short_name": "Mei Rivero",
   "start_url": "./index.html",
-  "background_color": "#f9fafb",
-  "theme_color": "#4f46e5",
+  "scope": "./",
   "display": "standalone",
-  "orientation": "portrait"
+  "orientation": "portrait",
+  "background_color": "#eff8f7",
+  "theme_color": "#1d4e4f",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
 }
